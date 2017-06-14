@@ -1,0 +1,4 @@
+.grayscale-filter {
+    filter: saturate(0.03); 
+    -webkit-filter: saturate(0.03); 
+}
