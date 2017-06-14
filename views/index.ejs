@@ -14,7 +14,17 @@
         || navigator.webkitGetUserMedia 
         || navigator.mozGetUserMedia; 
 
-        var constraints = {audio: true, video: true}; 
+        var constraints = {
+            audio: false, 
+            video: {
+                mandatory: {
+                    maxHeight: 720,
+                    minHeight: 480,  
+                    maxWidth: 960, 
+                    minWidth: 640
+                }
+            }
+        }; 
 
         var videoArea = document.querySelector('video'); 
 
