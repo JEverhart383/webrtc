@@ -5,7 +5,30 @@
 <h1>
     Everything is working all right! 
 </h1>
+    <video></video>
 
+
+
+    <script type="text/javascript">
+        navigator.getUserMedia = navigator.getUserMedia 
+        || navigator.webkitGetUserMedia 
+        || navigator.mozGetUserMedia; 
+
+        var constraints = {audio: true, video: true}; 
+
+        var videoArea = document.querySelector('video'); 
+
+        navigator.getUserMedia(constraints, onSuccess, onError); 
+    
+        function onSuccess(stream){
+            videoArea.src = window.URL.createObjectURL(stream); 
+            videoArea.play(); 
+        }
+
+        function onError(error){
+            console.log("Error with getUserMedia: " + error); 
+        }
+    </script>
 
 </body>
 
