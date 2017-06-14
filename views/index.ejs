@@ -6,13 +6,39 @@
 </head>
 <body>
 <h1>
-    Everything is working all right! 
+    Web Chat
 </h1>
+    <div>
+        <select id="camera"></select>
+    </div>
+
     <video class="grayscale-filter"></video>
 
 
 
     <script type="text/javascript">
+    var videoArea = document.querySelector('video');
+    var videoSelect = document.querySelector('#camera');
+    
+    
+    
+    navigator.mediaDevices.enumerateDevices().then(getCameras); 
+
+    startStream(); 
+
+    function getCameras(sourceInfos){
+        for (var i = 0; i !== sourceInfos.length; i++){
+            var sourceInfo =sourceInfos[i]; 
+            var option = document.createElement('option'); 
+            option.value = sourceInfo.id; 
+            if (sourceInfo.kind === 'videoinput'){
+                option.text = sourceInfo.label || 'camera' + (videoSelect.length + 1);
+                videoSelect.appendChild(option);  
+            }
+        }
+    }
+
+    function startStream(){
         navigator.getUserMedia = navigator.getUserMedia 
         || navigator.webkitGetUserMedia 
         || navigator.mozGetUserMedia; 
@@ -41,6 +67,8 @@
         function onError(error){
             console.log("Error with getUserMedia: " + error); 
         }
+    }
+
     </script>
 
 </body>
