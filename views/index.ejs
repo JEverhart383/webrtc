@@ -26,6 +26,8 @@
 
     startStream(); 
 
+    videoSelect.onchange = startStream; 
+
     function getCameras(sourceInfos){
         for (var i = 0; i !== sourceInfos.length; i++){
             var sourceInfo =sourceInfos[i]; 
@@ -43,6 +45,7 @@
         || navigator.webkitGetUserMedia 
         || navigator.mozGetUserMedia; 
 
+       var videoSource = videoSelect.value; 
         var constraints = {
             audio: false, 
             video: {
@@ -51,7 +54,10 @@
                     minHeight: 480,  
                     maxWidth: 960, 
                     minWidth: 640
-                }
+                }, 
+                optional: [{
+                    sourceId: videoSource
+                }]
             }
         }; 
 
