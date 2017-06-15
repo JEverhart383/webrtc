@@ -11,22 +11,62 @@
     <div>
         <select id="camera"></select>
     </div>
-
-    <video class="grayscale-filter"></video>
+    <br>
+    <button type="button" id="createProfilePicture">Create Profile Picture</button>
+    <br>
+    <video class="grayscale-filter" id="videoTag"></video>
+    <canvas id="profilePictureCanvas" style="display:none;"></canvas>
+    <div>
+        <img id="profilePictureOutput">
+    </div>
 
 
 
     <script type="text/javascript">
+    var videoTag = document.querySelector('#videoTag'); 
     var videoArea = document.querySelector('video');
     var videoSelect = document.querySelector('#camera');
-    
+    var createProfileButton = document.querySelector('#createProfilePicture'); 
+    var profilePictureCanvas = document.querySelector('#profilePictureCanvas'); 
+    var profilePictureOutput = document.querySelector('#profilePictureOutput'); 
+    var width = 240; 
+    var height = 0; 
+    var streaming = false; 
     
     
     navigator.mediaDevices.enumerateDevices().then(getCameras); 
 
     startStream(); 
 
-    videoSelect.onchange = startStream; 
+    videoSelect.onchange = startStream;
+
+    createProfileButton.addEventListener('click', takeProfilePicture); 
+
+    videoTag.addEventListener('canplay', function(event){
+        if (!streaming){
+            height = videoTag.height / (videoTag.videoWidth / width); 
+            if (isNaN(height)){
+                height = width / (4/3); 
+            }
+
+            videoTag.setAttribute('width', width); 
+            videoTag.setAttribute('height', height); 
+            profilePictureCanvas.setAttribute('width', width); 
+            profilePictureCanvas.setAttribute('height', height); 
+            streaming = true; 
+        }
+    }, false) 
+
+    function takeProfilePicture(){
+        var context =profilePictureCanvas.getContext('2d'); 
+        if (width && height){
+            profilePictureCanvas.height = height; 
+            profilePictureCanvas.width = width; 
+            context.drawImage(videoTag, 0, 0, width, height); 
+            var data = profilePictureCanvas.toDataURL('image/png'); 
+            profilePictureOutput.setAttribute('src', data); 
+        }
+    }
 
     function getCameras(sourceInfos){
         for (var i = 0; i !== sourceInfos.length; i++){
@@ -50,10 +90,10 @@
             audio: false, 
             video: {
                 mandatory: {
-                    maxHeight: 720,
-                    minHeight: 480,  
-                    maxWidth: 960, 
-                    minWidth: 640
+                    maxHeight: 240,
+                    minHeight: 240,  
+                    maxWidth: 240, 
+                    minWidth: 240
                 }, 
                 optional: [{
                     sourceId: videoSource
