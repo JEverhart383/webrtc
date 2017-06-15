@@ -1,9 +1,10 @@
 {
-    "name": "webrtc-app", 
-    "version": "0.0.1", 
-    "private": true, 
-    "dependencies": {
-        "express": "4.x", 
-        "ejs": "2.x"
-    }
+  "name": "webrtc-app",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "ejs": "2.x",
+    "express": "4.x",
+    "peaks.js": "^0.7.0"
+  }
 }

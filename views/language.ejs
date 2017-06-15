@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css">
+<script type="text/javascript" src="peaks.js">
+
+</script>
+
+</head>
+<body>
+<h1>
+    Language Web Chat
+</h1>
+    <div>
+        <select id="camera"></select>
+    </div>
+    <br>
+    <button type="button" id="graphAudioButton">Graph Audio</button>
+    <br>
+    <video class="grayscale-filter" id="videoTag"></video>
+
+    <button type="button" id="startRecording">Start Recording</button>
+    <button type="button" id="stopRecording">Stop Recording</button>
+    <div id="audioContainer"></div>
+    <div id="audioGraph"></div>
+
+
+
+
+
+    <script type="text/javascript">
+
+    (function(Peaks){ 
+    var videoTag = document.querySelector('#videoTag'); 
+    var videoArea = document.querySelector('video');
+    var videoSelect = document.querySelector('#camera');
+    var startRecordingButton = document.querySelector('#startRecording'); 
+    var stopRecordingButton = document.querySelector('#stopRecording'); 
+    var graphAudioButton = document.querySelector('#graphAudioButton'); 
+    var streaming = false;
+    var audioContext; 
+    var mediaRecorder; 
+    var chunks = [];
+    
+    
+    navigator.mediaDevices.enumerateDevices().then(getCameras); 
+
+    startStream(); 
+
+    videoSelect.onchange = startStream;
+
+
+    function getCameras(sourceInfos){
+        for (var i = 0; i !== sourceInfos.length; i++){
+            var sourceInfo =sourceInfos[i]; 
+            var option = document.createElement('option'); 
+            option.value = sourceInfo.id; 
+            if (sourceInfo.kind === 'videoinput'){
+                option.text = sourceInfo.label || 'camera' + (videoSelect.length + 1);
+                videoSelect.appendChild(option);  
+            }
+        }
+    }
+
+    function startStream(){
+        navigator.getUserMedia = navigator.getUserMedia 
+        || navigator.webkitGetUserMedia 
+        || navigator.mozGetUserMedia; 
+
+       var videoSource = videoSelect.value; 
+        var constraints = {
+            audio: true, 
+            video: {
+                mandatory: {
+                    maxHeight: 240,
+                    minHeight: 240,  
+                    maxWidth: 240, 
+                    minWidth: 240
+                }, 
+                optional: [{
+                    sourceId: videoSource
+                }]
+            }
+        }; 
+
+        navigator.getUserMedia(constraints, onSuccess, onError); 
+    
+        function onSuccess(stream){
+            videoArea.src = window.URL.createObjectURL(stream); 
+            videoArea.play(); 
+
+            mediaRecorder = new MediaRecorder(stream); 
+            //var audioSrc = audioContext.createMediaStreamSource(stream);
+
+            mediaRecorder.ondataavailable = function(event){
+                chunks.push(event.data); 
+            }
+
+            startRecordingButton.onclick = function(){
+                mediaRecorder.start(); 
+                console.log('recording started'); 
+            }
+
+            stopRecordingButton.onclick = function(){
+                mediaRecorder.stop(); 
+                console.log('recording stopped'); 
+            }
+
+            mediaRecorder.onstop = function(){
+                var audio = document.createElement('audio'); 
+                audio.setAttribute('id', 'recordedAudio'); 
+                var blob = new Blob(chunks, {'type' : 'audio/ogg; codec=opus'}); 
+                chunks = []; 
+                var audioURL = window.URL.createObjectURL(blob);
+                document.querySelector('#audioContainer').appendChild(audio);  
+                audioContext = new AudioContext(); 
+                
+            } 
+
+
+
+        }
+
+        function onError(error){
+            console.log("Error with getUserMedia: " + error); 
+        }
+    }
+
+    graphAudioButton.addEventListener('click', graphAudio); 
+
+    function graphAudio(){
+        var p = Peaks.init({
+        container: document.querySelector('#audioGraph'),
+        mediaElement: document.querySelector('#recordedAudio'),
+        audioContext: audioContext
+        });
+
+        p.on('segments.ready', function(){
+        // do something when segments are ready to be displayed
+        });
+    }
+})(peaks); 
+    </script>
+
+</body>
+
+</html>

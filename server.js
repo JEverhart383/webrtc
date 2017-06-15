@@ -8,4 +8,8 @@ app.get('/', function(req, res){
     res.render('index.ejs'); 
 }); 
 
+app.get('/language', function(req, res){
+    res.render('language.ejs')
+})
+
 app.listen(3000); 

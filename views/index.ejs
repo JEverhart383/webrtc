@@ -44,7 +44,8 @@
 
     videoTag.addEventListener('canplay', function(event){
         if (!streaming){
-            height = videoTag.height / (videoTag.videoWidth / width); 
+            height = 240; 
+            
             if (isNaN(height)){
                 height = width / (4/3); 
             }
