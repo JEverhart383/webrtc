@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="styles.css">
+<script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+<h1>
+    Web Chat
+</h1>
+    <div>
+        <select id="camera"></select>
+    </div>
+    <br>
+    <br>
+    <video class="grayscale-filter" id="videoTag"></video>
+
+    <div>
+        <label>Your Name</label><input type="text" id="myName"/>
+        <label>Message</label><input type="text" id="myMessage"/>
+        <input id="sendMessage" type="submit">
+        <div id="chatArea">Message Output: </br></div>
+    </div>
+
+
+
+    <script type="text/javascript">
+   //chat stuff
+   var myName = document.querySelector('#myName'); 
+   var myMessage = document.querySelector('#myMessage'); 
+   var sendMessage = document.querySelector('#sendMessage'); 
+   var chatArea = document.querySelector('#chatArea'); 
+   var ROOM = 'chat'; 
+
+
+   //video stuff
+    var videoTag = document.querySelector('#videoTag'); 
+    var videoArea = document.querySelector('video');
+    var videoSelect = document.querySelector('#camera');
+    var width = 240; 
+    var height = 0; 
+    var streaming = false; 
+    
+    
+    navigator.mediaDevices.enumerateDevices().then(getCameras); 
+
+    // startStream(); 
+
+    io = io.connect(); 
+    io.emit('ready', ROOM); 
+
+    io.on('announce', function(data){
+        displayMessage(data.message); 
+    })
+
+    io.on('message', function(data){
+        displayMessage(data.author + ":" + data.message); 
+    })
+
+
+    function displayMessage(message){
+        chatArea.innerHTML = chatArea.innerHTML + "<br/>" + message; 
+    }
+
+    sendMessage.addEventListener('click', function(event){
+        io.emit('send', {"author": myName.value, "message": myMessage.value, "room":ROOM }); 
+        event.preventDefault(); 
+    }, false)
+
+    videoSelect.onchange = startStream;
+
+    function getCameras(sourceInfos){
+        for (var i = 0; i !== sourceInfos.length; i++){
+            var sourceInfo =sourceInfos[i]; 
+            var option = document.createElement('option'); 
+            option.value = sourceInfo.id; 
+            if (sourceInfo.kind === 'videoinput'){
+                option.text = sourceInfo.label || 'camera' + (videoSelect.length + 1);
+                videoSelect.appendChild(option);  
+            }
+        }
+    }
+
+    function startStream(){
+        navigator.getUserMedia = navigator.getUserMedia 
+        || navigator.webkitGetUserMedia 
+        || navigator.mozGetUserMedia; 
+
+       var videoSource = videoSelect.value; 
+        var constraints = {
+            audio: false, 
+            video: false
+            }; 
+
+        var videoArea = document.querySelector('video'); 
+
+        navigator.getUserMedia(constraints, onSuccess, onError); 
+    
+        function onSuccess(stream){
+            videoArea.src = window.URL.createObjectURL(stream); 
+            videoArea.play(); 
+        }
+
+        function onError(error){
+            console.log("Error with getUserMedia: " + error); 
+        }
+        }
+
+    </script>
+
+</body>
+
+</html>
