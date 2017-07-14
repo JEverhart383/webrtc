@@ -11,7 +11,14 @@
 </h1>
     <br>
     <br>
-    <video  id="myVideoTag"></video>
+    <div style="width: 45%">
+        <h2>Local</h2>
+        <video  id="myVideoTag"></video>
+    </div>
+    <div style="width: 45%">
+        <h2>Remote</h2>
+        <video  id="myVideoTag"></video>
+    </div>
     <video id="theirVideoTag"></video>
 
     <div>
@@ -66,7 +73,7 @@
     })
 
     io.on('signaling_message', function(data){
-        displaySignalMessage("Signal received: " + data.type); 
+        displaySignalMessage("Signal received: " + data.type + " Message: " + data.message); 
         
         if (!rtcPeerConn){
             startSignaling(); 
@@ -108,10 +115,10 @@
             rtcPeerConn.createOffer().then(sendLocalDesc).catch(logError); 
         }
 
-        rtcPeerConn.ontrack = function(event){
+        rtcPeerConn.onaddstream = function(event){
             console.log('stream'); 
             displaySignalMessage("going to add their stream..."); 
-            theirVideoTag.src = URL.createObjectURL(event.streams[0]); 
+            theirVideoTag.src = URL.createObjectURL(event.stream); 
         }
 
         navigator.getUserMedia = navigator.getUserMedia 
@@ -130,7 +137,9 @@
             myVideoTag.src = window.URL.createObjectURL(stream); 
             myVideoTag.play(); 
 
-            stream.getTracks().forEach(track => rtcPeerConn.addTrack(track, stream)); 
+            displaySignalMessage("going to add my stream..."); 
+            rtcPeerConn.addStream(stream); 
+            // stream.getTracks().forEach(track => rtcPeerConn.add(track, stream)); 
         }
 
         function onError(error){
